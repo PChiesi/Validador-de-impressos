@@ -14,9 +14,28 @@ function allMoney(s){
 function findMoney(s){ return allMoney(s)[0] || null; }
 const termList = s => String(s || "").split(/[,;\n]/).map(x => x.trim()).filter(Boolean);
 function termRe(term){
-  let body = reEsc(term);
-  if (/^iof$/i.test(term)) body = "I\\.?\\s?O\\.?\\s?F\\.?";
-  return new RegExp("(?<![\\p{L}\\p{N}])" + body + "(?![\\p{L}\\p{N}])", "giu");
+  return new RegExp("(?<![\\p{L}\\p{N}])" + reEsc(term) + "(?![\\p{L}\\p{N}])", "giu");
+}
+/* ---- rótulos do IOF ----
+   Variações reconhecidas (quando "reconhecer variações" está ligado):
+   · sigla em qualquer caixa: IOF, Iof, iof, IOF-Seguros, IOF/Seguro
+   · sigla com separadores (em maiúsculas): I.O.F., I. O. F., I O F, I-O-F, I_O_F, I•O•F
+   · nome por extenso: Imposto sobre Operações Financeiras; Imposto sobre Operações de Crédito, Câmbio e Seguro(s);
+     Imposto sobre Operações de Seguro(s); Imp. s/ Op. Financeiras e abreviações parecidas
+   · erros de OCR (só em páginas lidas por OCR): I0F, l0F, 1OF, |OF, IO F                                    */
+const B0 = "(?<![\\p{L}\\p{N}])", B1 = "(?![\\p{L}\\p{N}])";
+const SEP = "[\\s.·•\\-–_/]";
+const IOF_BUILTIN = [
+  new RegExp(B0 + "iof\\.?" + B1, "giu"),
+  new RegExp(B0 + `(?:I${SEP}{1,3}O${SEP}{0,3}F|IO${SEP}{1,3}F)\\.?` + B1, "gu"),
+  new RegExp(B0 + "imposto\\s+(?:sobre|s\\s*\\/|s\\.)\\s*(?:as\\s+)?opera[çc][õo]es\\s+(?:de\\s+)?(?:cr[ée]dito\\s*,?\\s*c[âa]mbio\\s*,?\\s*e\\s+seguros?|financeiras|seguros?)" + B1, "giu"),
+  new RegExp(B0 + "imp\\.?\\s*(?:sobre|s\\s*\\/|s\\.)\\s*op(?:er(?:a[çc][õo]es)?)?\\.?\\s*fin(?:anc(?:eiras?)?)?\\.?" + B1, "giu"),
+];
+const IOF_OCR = [ new RegExp(B0 + `[I1l|]${SEP}{0,2}[O0]${SEP}{0,2}F\\.?` + B1, "gu") ];
+function iofLabelRes(ocr){
+  const custom = termList(cfg.iofTerms).filter(t => !(cfg.iofVariants && /^i\W*o\W*f\W*$/i.test(t))).map(termRe);
+  if (!cfg.iofVariants) return custom;
+  return [...IOF_BUILTIN, ...(ocr ? IOF_OCR : []), ...custom];
 }
 function hlMark(text, ranges){
   ranges = ranges.slice().sort((x, y) => x.a - y.a); let out = "", p = 0;
@@ -56,23 +75,24 @@ function sentenceRange(seg, off, len){
 }
 
 function checkIof(segs){
-  const terms = termList(cfg.iofTerms);
   const values = [], mentions = [];
   const pagesWithTextValue = new Set();
-  if (!terms.length) return { status: "na", values, mentions, off: true };
-  const res = terms.map(termRe);
+  if (!termList(cfg.iofTerms).length && !cfg.iofVariants) return { status: "na", values, mentions, off: true };
   const order = segs.map((_, i) => i).sort((a, b) => segs[a].ocr - segs[b].ocr);
   const seen = new Set();
   for (const si of order){
-    const seg = segs[si], rows = seg.rows;
+    const seg = segs[si], rows = seg.rows, res = iofLabelRes(seg.ocr);
     for (let r = 0; r < rows.length; r++){
       const row = rows[r];
       for (let ci = 0; ci < row.length; ci++){
         const cell = row[ci];
+        const taken = [];   // trechos da célula já reconhecidos (evita contar "Imposto… (IOF)" duas vezes)
         for (const re of res){
           re.lastIndex = 0; let m;
           while ((m = re.exec(cell.t))){
             const labA = m.index, labB = m.index + m[0].length;
+            if (taken.some(([a, b]) => labA < b && labB > a)) continue;
+            taken.push([labA, labB]);
             const after = cell.t.slice(labB);
             let found = null, how = "", r2 = r, valHL = null, lowConf = null, lowHL = null;
             let cand = null, candHL = null, prefix = "";

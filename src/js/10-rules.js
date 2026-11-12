@@ -6,7 +6,7 @@ function syncRulesUI(){
   renderPhrases();
   $("forbidden").value = cfg.forbidden; $("iofTerms").value = cfg.iofTerms;
   $("simil").value = cfg.simil; $("similOut").textContent = cfg.simil + "%";
-  $("ocrMode").value = cfg.ocrMode; $("onlyPdf").checked = !!cfg.onlyPdf;
+  $("ocrMode").value = cfg.ocrMode; $("onlyPdf").checked = !!cfg.onlyPdf; $("iofVariants").checked = !!cfg.iofVariants;
 }
 $("phrases").addEventListener("input", ev => { const i = ev.target.dataset.phrase; if (i == null) return; cfg.phrases[+i] = ev.target.value.replace(/\s*\n\s*/g, " "); saveCfg(); reanalyzeAll(); });
 $("phrases").addEventListener("click", ev => { const b = ev.target.closest("[data-delphrase]"); if (!b) return; cfg.phrases.splice(+b.dataset.delphrase, 1); saveCfg(); renderPhrases(); reanalyzeAll(); });
@@ -15,5 +15,6 @@ $("forbidden").addEventListener("input", ev => { cfg.forbidden = ev.target.value
 $("iofTerms").addEventListener("input", ev => { cfg.iofTerms = ev.target.value; saveCfg(); reanalyzeAll(); });
 $("simil").addEventListener("input", ev => { cfg.simil = +ev.target.value; $("similOut").textContent = cfg.simil + "%"; saveCfg(); reanalyzeAll(); });
 $("ocrMode").addEventListener("change", ev => { cfg.ocrMode = ev.target.value; saveCfg(); render(); toast("Modo de OCR alterado — vale para os próximos arquivos."); });
+$("iofVariants").addEventListener("change", ev => { cfg.iofVariants = ev.target.checked; saveCfg(); reanalyzeAll(); });
 $("onlyPdf").addEventListener("change", ev => { cfg.onlyPdf = ev.target.checked; saveCfg(); });
 $("btnReset").addEventListener("click", () => { cfg = JSON.parse(JSON.stringify(DEFAULT_CFG)); saveCfg(); syncRulesUI(); reanalyzeAll(); toast("Regras restauradas."); });

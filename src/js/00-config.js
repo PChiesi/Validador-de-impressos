@@ -16,6 +16,7 @@ const DEFAULT_CFG = {
   phrases: ["Em atendimento à Lei nº 12.741/12 informamos que incide a alíquota de 10,85% de CBS sobre os prêmios de seguros, deduzidos conforme o estabelecido em legislação específica"],
   forbidden: "PIS, COFINS",
   iofTerms: "IOF",
+  iofVariants: true,
   simil: 85,
   ocrMode: "auto",
   onlyPdf: true,

@@ -297,7 +297,12 @@
               </label>
               <label class="grid gap-2"><span class="lbl">Rótulos do IOF</span>
                 <input type="text" id="iofTerms" class="field" placeholder="IOF">
-                <span class="hint">Onde o rótulo aparecer, o valor ao lado ou logo abaixo (tabelas) precisa ser zero.</span>
+                <span class="hint">Onde o rótulo aparecer, o valor ao lado ou logo abaixo (tabelas) precisa ser zero. Separe rótulos extras por vírgula.</span>
+              </label>
+              <label class="flex items-start justify-between gap-4">
+                <span class="grid gap-1"><span class="lbl">Reconhecer variações do IOF</span>
+                  <span class="hint">I.O.F., I. O. F., I O F, I-O-F, IOF-Seguros, Iof, “Imposto sobre Operações Financeiras”, “Imposto sobre Operações de Crédito, Câmbio e Seguro”, “Imp. s/ Op. Financeiras” e erros comuns de OCR (I0F, l0F).</span></span>
+                <input type="checkbox" id="iofVariants" class="toggle mt-0.5">
               </label>
             </div>
           </div>
@@ -347,6 +352,7 @@
               <li>Palavra faltando não pontua; palavra a mais no meio da frase desconta meio ponto.</li>
               <li>Percentual = pontos ÷ total de palavras da frase. 100% = frase exata.</li>
             </ul>
+            <p class="mt-2"><b>IOF:</b> além da sigla, são reconhecidas as formas com pontos ou espaços (I.O.F., I O F), compostas (IOF-Seguros) e por extenso (“Imposto sobre Operações Financeiras”). A lista pode ser ampliada em Regras.</p>
           </div>
         </div>
         <div class="card p-5">

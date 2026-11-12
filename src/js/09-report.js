@@ -88,7 +88,7 @@ async function downloadHtmlReport(){
     mark{background:#FFE58A}.n{font-size:12px;color:#4D5754}
     @media print{header{-webkit-print-color-adjust:exact;print-color-adjust:exact}section{page-break-inside:auto}.charts{page-break-inside:avoid}}
     @media (max-width:700px){.kpis{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}}
-    </style></head><body><header><h1>Validação de impressos — Reforma Tributária</h1><p>Gerado em ${esc(stamp)} · ${done.length} documento(s) · Frase: “${esc(cfg.phrases.join(" | "))}” · Termos proibidos: ${esc(cfg.forbidden)} · Rótulos IOF: ${esc(cfg.iofTerms)} · Similaridade mínima: ${cfg.simil}%</p></header>${exec}<h2 style="margin-top:24px">Evidências por documento</h2>${body}</body></html>`;
+    </style></head><body><header><h1>Validação de impressos — Reforma Tributária</h1><p>Gerado em ${esc(stamp)} · ${done.length} documento(s) · Frase: “${esc(cfg.phrases.join(" | "))}” · Termos proibidos: ${esc(cfg.forbidden)} · Rótulos IOF: ${esc(cfg.iofTerms)}${cfg.iofVariants ? " + variações" : ""} · Similaridade mínima: ${cfg.simil}%</p></header>${exec}<h2 style="margin-top:24px">Evidências por documento</h2>${body}</body></html>`;
   try { const ok = await saveBlob(new Blob([html], { type: "text/html;charset=utf-8" }), `relatorio-impressos-reforma-tributaria-${d.toISOString().slice(0, 10)}.html`); if (ok) toast("Relatório gerado. Abra no navegador e use Ctrl+P para salvar em PDF."); }
   catch(e){ toast("Não foi possível baixar o relatório aqui."); }
 }
