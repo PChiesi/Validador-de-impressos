@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Validador de Impressos</title>
+<meta name="description" content="Validação dos documentos impressos frente à Reforma Tributária: IOF zerado, ausência de PIS/COFINS e frase da CBS, com prints e relatório executivo.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B6B47'/%3E%3Cpath d='M16 6l8 3v6c0 5-3.4 9-8 11-4.6-2-8-6-8-11V9z' fill='none' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M12 16l3 3 5-6' fill='none' stroke='%238DC63F' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<script>
+  (function(){
+    var root = document.documentElement, saved = null, sb = null;
+    try { saved = localStorage.getItem("vdi-theme"); sb = localStorage.getItem("vdi-sidebar"); } catch(e){}
+    var stamp = root.getAttribute("data-theme");
+    var dark = saved ? saved === "dark" : stamp ? stamp === "dark" : (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+    root.classList.toggle("dark", !!dark);
+    root.style.colorScheme = dark ? "dark" : "light";
+    if (sb === "collapsed") root.classList.add("sb-collapsed");
+  })();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js" data-auto-a11y="true"></script>
+<style>
+/*{{CSS}}*/
+</style>
+</head>
+<body class="h-full">
+
+<!-- ================= SIDEBAR ================= -->
+<aside id="sidebar" class="sidebar" aria-label="Navegação principal">
+  <div class="flex h-16 shrink-0 items-center gap-3 px-4">
+    <span class="logo-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" class="h-6 w-6"><path d="M16 5l8.5 3.2v6.4c0 5.4-3.6 9.6-8.5 11.6-4.9-2-8.5-6.2-8.5-11.6V8.2z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 16.2l3 3 5.2-6.2" fill="none" stroke="#8DC63F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+    <span class="sb-label min-w-0 leading-tight">
+      <span class="block truncate text-[14.5px] font-bold tracking-tight text-white">Validador de Impressos</span>
+      <span class="block truncate font-mono text-[10px] uppercase tracking-[.16em] text-brand-200/80">Reforma Tributária</span>
+    </span>
+  </div>
+
+  <nav class="relative mt-2 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-4" id="nav">
+    <span id="navIndicator" class="nav-indicator" aria-hidden="true"></span>
+    <p class="sb-section">Operação</p>
+    <a href="#analise" data-nav="analise" class="nav-item" title="Análise">
+      <i class="fa-solid fa-magnifying-glass-chart nav-ic"></i><span class="sb-label flex-1">Análise</span><span class="sb-label nav-badge" id="navCount">0</span>
+    </a>
+    <a href="#relatorio" data-nav="relatorio" class="nav-item" title="Relatório executivo">
+      <i class="fa-solid fa-chart-column nav-ic"></i><span class="sb-label flex-1">Relatório executivo</span><span class="sb-label live-dot" id="navLive" hidden></span>
+    </a>
+    <p class="sb-section">Configuração</p>
+    <a href="#regras" data-nav="regras" class="nav-item" title="Regras de validação">
+      <i class="fa-solid fa-sliders nav-ic"></i><span class="sb-label flex-1">Regras de validação</span>
+    </a>
+    <p class="sb-section">Suporte</p>
+    <a href="#ajuda" data-nav="ajuda" class="nav-item" title="Como funciona">
+      <i class="fa-solid fa-circle-question nav-ic"></i><span class="sb-label flex-1">Como funciona</span>
+    </a>
+  </nav>
+
+  <div class="shrink-0 border-t border-white/10 p-3">
+    <div class="sb-label mb-3 rounded-xl bg-white/[.06] p-3 text-[12px] leading-snug text-brand-50/80">
+      <div class="mb-1 flex items-center gap-2 font-semibold text-white"><i class="fa-solid fa-shield-halved text-lime-300"></i>Processamento local</div>
+      Os arquivos são lidos no navegador e não saem do computador.
+    </div>
+    <button type="button" id="btnCollapse" class="nav-item w-full !mb-0" title="Recolher menu" aria-label="Recolher ou expandir o menu">
+      <i class="fa-solid fa-angles-left nav-ic collapse-ic"></i><span class="sb-label flex-1 text-left">Recolher menu</span>
+    </button>
+  </div>
+</aside>
+<div id="sbOverlay" class="sb-overlay" hidden></div>
+
+<!-- ================= CONTEÚDO ================= -->
+<div class="shell">
+  <header class="topbar">
+    <button type="button" id="btnMenu" class="icon-btn lg:hidden" aria-label="Abrir menu" aria-controls="sidebar" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+    <nav class="flex min-w-0 items-center gap-2 text-[13px]" aria-label="Você está em">
+      <span class="hidden text-ink-400 sm:inline">Validador de Impressos</span>
+      <i class="fa-solid fa-chevron-right hidden text-[9px] text-ink-300 sm:inline"></i>
+      <span id="crumb" class="truncate font-semibold text-ink-800 dark:text-ink-100">Análise</span>
+    </nav>
+    <div class="ml-auto flex items-center gap-2">
+      <div id="runPill" class="run-pill" hidden><i class="fa-solid fa-circle-notch fa-spin"></i><span id="runPillTxt">0/0</span></div>
+      <button type="button" id="btnTheme" class="theme-switch" role="switch" aria-checked="false" aria-label="Modo escuro">
+        <span class="theme-knob"><i class="fa-solid fa-sun sun"></i><i class="fa-solid fa-moon moon"></i></span>
+      </button>
+      <div class="relative" id="addMenuWrap">
+        <button type="button" id="btnAdd" class="btn btn-primary" aria-haspopup="menu" aria-expanded="false"><i class="fa-solid fa-plus"></i><span class="hidden sm:inline">Adicionar</span><i class="fa-solid fa-chevron-down text-[10px] opacity-80"></i></button>
+        <div id="addMenu" class="menu" role="menu" hidden>
+          <button type="button" role="menuitem" class="menu-item" data-add="files"><span class="menu-ic"><i class="fa-regular fa-file-lines"></i></span><span><b>Arquivos</b><small>PDF, Word, Excel, PowerPoint, imagens</small></span></button>
+          <button type="button" role="menuitem" class="menu-item" data-add="folder"><span class="menu-ic"><i class="fa-regular fa-folder-open"></i></span><span><b>Mapear pasta</b><small>Inclui subpastas · somente PDFs</small></span></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto w-full max-w-[1440px] px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+
+    <!-- ============ ANÁLISE ============ -->
+    <section data-view="analise" class="view">
+      <div class="page-head">
+        <div>
+          <p class="eyebrow"><i class="fa-solid fa-scale-balanced"></i>Lei nº 12.741/12 · CBS</p>
+          <h1 class="page-title">Análise de documentos</h1>
+          <p class="page-sub">Cada arquivo é lido página a página — com OCR quando há imagem — e conferido contra as regras, com print de cada trecho encontrado.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="btn" data-add="files"><i class="fa-regular fa-file-lines"></i>Selecionar arquivos</button>
+          <button type="button" class="btn btn-primary" data-add="folder"><i class="fa-solid fa-folder-tree"></i>Mapear pasta</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-5" id="kpis">
+        <button type="button" class="kpi stagger" data-filter="all" aria-pressed="true">
+          <span class="kpi-top"><span class="kpi-ic tone-all"><i class="fa-solid fa-layer-group"></i></span><span class="kpi-meta" id="kpi-all-p">—</span></span>
+          <span class="kpi-n" id="kpi-all-n">0</span><span class="kpi-l">Documentos</span>
+        </button>
+        <button type="button" class="kpi stagger" data-filter="ok" aria-pressed="false">
+          <span class="kpi-top"><span class="kpi-ic tone-ok"><i class="fa-solid fa-circle-check"></i></span><span class="kpi-meta" id="kpi-ok-p">—</span></span>
+          <span class="kpi-n" id="kpi-ok-n">0</span><span class="kpi-l">Conformes</span>
+        </button>
+        <button type="button" class="kpi stagger" data-filter="warn" aria-pressed="false">
+          <span class="kpi-top"><span class="kpi-ic tone-warn"><i class="fa-solid fa-triangle-exclamation"></i></span><span class="kpi-meta" id="kpi-warn-p">—</span></span>
+          <span class="kpi-n" id="kpi-warn-n">0</span><span class="kpi-l">Para revisar</span>
+        </button>
+        <button type="button" class="kpi stagger" data-filter="fail" aria-pressed="false">
+          <span class="kpi-top"><span class="kpi-ic tone-fail"><i class="fa-solid fa-circle-xmark"></i></span><span class="kpi-meta" id="kpi-fail-p">—</span></span>
+          <span class="kpi-n" id="kpi-fail-n">0</span><span class="kpi-l">Não conformes</span>
+        </button>
+        <div class="kpi kpi-rate stagger col-span-2 xl:col-span-1">
+          <span class="kpi-top"><span class="kpi-l !mt-0">Taxa de conformidade</span><span class="kpi-meta" id="kpi-rate-meta">—</span></span>
+          <span class="flex items-baseline gap-1"><span class="kpi-n" id="kpi-rate-n">0</span><span class="text-lg font-semibold text-ink-400">%</span></span>
+          <span class="rate-bar"><i id="kpi-rate-bar"></i></span>
+        </div>
+      </div>
+
+      <div class="mt-6 grid items-start gap-6 xl:grid-cols-12">
+        <div class="grid gap-6 xl:col-span-4">
+          <div class="card stagger">
+            <div class="card-h"><h2 class="card-t"><span class="ic"><i class="fa-solid fa-cloud-arrow-up"></i></span>Entrada de documentos</h2></div>
+            <div class="grid gap-4 p-5">
+              <div id="drop" tabindex="0" role="button" aria-label="Escolher arquivos ou soltar uma pasta" class="dropzone">
+                <span class="drop-ic"><i class="fa-solid fa-file-arrow-up"></i></span>
+                <strong class="text-[15px] text-ink-900 dark:text-white">Arraste arquivos ou uma pasta</strong>
+                <span class="hint">Pastas são varridas com todas as subpastas e só os PDFs entram na análise.</span>
+              </div>
+              <input type="file" id="fileIn" multiple hidden accept=".pdf,.docx,.doc,.xlsx,.xls,.pptx,.png,.jpg,.jpeg,.bmp,.gif,.webp,.tif,.tiff,.txt,.htm,.html,.rtf,.csv,.xml,.eml">
+              <input type="file" id="dirIn" multiple hidden webkitdirectory>
+              <div class="grid grid-cols-2 gap-2">
+                <button class="btn" type="button" data-add="files"><i class="fa-regular fa-file-lines"></i>Arquivos</button>
+                <button class="btn" type="button" data-add="folder"><i class="fa-solid fa-folder-tree"></i>Pasta</button>
+              </div>
+              <div class="flex items-center justify-between gap-3 rounded-xl bg-ink-50 px-3 py-2.5 text-[12.5px] dark:bg-ink-850">
+                <span class="text-ink-600 dark:text-ink-300"><i class="fa-solid fa-eye mr-1.5 text-brand-600 dark:text-brand-300"></i>OCR: <b id="ocrModeLbl" class="text-ink-800 dark:text-ink-100">Automático</b></span>
+                <a href="#regras" class="link">Alterar</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="card stagger" id="treeCard" hidden>
+            <div class="card-h"><h2 class="card-t"><span class="ic"><i class="fa-solid fa-folder-tree"></i></span>Mapa da pasta</h2><span class="hint" id="treeMeta"></span></div>
+            <div class="max-h-[420px] overflow-auto p-3" id="tree"></div>
+          </div>
+        </div>
+
+        <section id="results" class="card stagger min-w-0 xl:col-span-8" aria-live="polite">
+          <div class="flex flex-col gap-3 border-b border-ink-100 px-5 py-4 dark:border-ink-800">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <h2 class="card-t"><span class="ic"><i class="fa-solid fa-list-check"></i></span>Resultados</h2>
+              <div class="flex flex-wrap items-center gap-2">
+                <div class="relative" id="expMenuWrap">
+                  <button type="button" id="btnExport" class="btn" aria-haspopup="menu" aria-expanded="false"><i class="fa-solid fa-file-export"></i>Exportar<i class="fa-solid fa-chevron-down text-[10px] opacity-70"></i></button>
+                  <div id="expMenu" class="menu menu-right" role="menu" hidden>
+                    <button type="button" role="menuitem" class="menu-item" id="btnHtml"><span class="menu-ic"><i class="fa-solid fa-file-image"></i></span><span><b>Relatório com prints</b><small>HTML com gráficos e evidências</small></span></button>
+                    <button type="button" role="menuitem" class="menu-item" id="btnXlsx"><span class="menu-ic"><i class="fa-solid fa-file-excel"></i></span><span><b>Planilha Excel</b><small>Uma linha por documento</small></span></button>
+                    <button type="button" role="menuitem" class="menu-item" id="btnCopy"><span class="menu-ic"><i class="fa-regular fa-copy"></i></span><span><b>Copiar tabela</b><small>Para colar no Excel ou e-mail</small></span></button>
+                  </div>
+                </div>
+                <button class="icon-btn" id="btnReproc" type="button" title="Reprocessar todos os arquivos" aria-label="Reprocessar todos os arquivos"><i class="fa-solid fa-arrows-rotate"></i></button>
+                <button class="icon-btn hover:!text-rose-600" id="btnClear" type="button" title="Limpar a lista" aria-label="Limpar a lista"><i class="fa-regular fa-trash-can"></i></button>
+              </div>
+            </div>
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+              <div id="tabs" class="seg-ctl" role="group" aria-label="Filtrar por resultado"></div>
+              <div id="folderChip" class="folder-chip" hidden></div>
+              <label class="relative lg:ml-auto lg:w-56 lg:shrink-0">
+                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-ink-400"></i>
+                <input id="search" type="search" class="field !py-2 pl-9" placeholder="Buscar por nome ou pasta…" aria-label="Buscar por nome ou pasta">
+              </label>
+            </div>
+          </div>
+          <div class="progress-band" id="progress" hidden>
+            <div id="progText" class="flex items-center gap-2"></div>
+            <div class="h-1.5 overflow-hidden rounded-full bg-ink-200 dark:bg-ink-800"><i id="progBar" class="block h-full w-0 rounded-full bg-gradient-to-r from-brand-600 to-lime-400 transition-[width] duration-500"></i></div>
+          </div>
+          <div class="info-band" id="exampleBar" hidden>
+            <i class="fa-solid fa-wand-magic-sparkles mt-0.5 text-sky-600 dark:text-sky-400"></i>
+            <span>Estes documentos são <b>exemplos</b> para mostrar como o resultado aparece. Eles somem assim que você adicionar seus arquivos.</span>
+          </div>
+          <div id="list"></div>
+          <div id="more" class="border-t border-ink-100 p-3 text-center dark:border-ink-800" hidden><button type="button" class="btn btn-ghost" id="btnMore"><i class="fa-solid fa-angles-down"></i><span id="moreTxt">Mostrar mais</span></button></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============ RELATÓRIO ============ -->
+    <section data-view="relatorio" class="view" hidden>
+      <div class="page-head">
+        <div>
+          <p class="eyebrow"><i class="fa-solid fa-chart-column"></i>Relatório executivo</p>
+          <h1 class="page-title">Validação dos impressos — Reforma Tributária</h1>
+          <p class="page-sub" id="repStamp">Os números e a leitura abaixo se atualizam enquanto os documentos são analisados.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="btn" id="btnRepXlsx"><i class="fa-solid fa-file-excel"></i>Excel</button>
+          <button type="button" class="btn" id="btnPrint" hidden><i class="fa-solid fa-print"></i>Imprimir / PDF</button>
+          <button type="button" class="btn btn-primary" id="btnRepHtml"><i class="fa-solid fa-file-arrow-down"></i>Baixar relatório</button>
+        </div>
+      </div>
+
+      <div id="repEmpty" class="card grid justify-items-center gap-3 px-6 py-16 text-center" hidden>
+        <span class="grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-[22px] text-brand-600 dark:bg-brand-500/10 dark:text-brand-300"><i class="fa-solid fa-chart-pie"></i></span>
+        <strong class="text-[16px] text-ink-900 dark:text-white">O relatório aparece aqui</strong>
+        <span class="hint max-w-md">Adicione arquivos ou mapeie uma pasta na aba Análise. Os gráficos e a leitura do resultado são montados conforme cada documento termina.</span>
+        <a href="#analise" class="btn btn-primary mt-2"><i class="fa-solid fa-arrow-left"></i>Ir para Análise</a>
+      </div>
+
+      <div id="repBody" class="grid gap-6">
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-6" id="repKpis"></div>
+
+        <div class="grid gap-6 xl:grid-cols-12">
+          <div class="card p-5 xl:col-span-4">
+            <div class="chart-h"><h3>Situação geral</h3><span class="hint">por documento</span></div>
+            <div class="relative mx-auto mt-2 h-[260px] max-w-[320px]"><canvas id="chStatus" aria-label="Gráfico de rosca da situação geral" role="img"></canvas>
+              <div class="pointer-events-none absolute inset-0 grid place-items-center text-center"><div><div class="text-[30px] font-bold tabular-nums text-ink-900 dark:text-white" id="chStatusN">0%</div><div class="text-[11.5px] font-semibold text-ink-500">conformidade</div></div></div>
+            </div>
+          </div>
+          <div class="card p-5 xl:col-span-8">
+            <div class="chart-h"><h3>Resultado por regra</h3><span class="hint">quantos documentos atendem cada exigência</span></div>
+            <div class="relative mt-2 h-[260px]"><canvas id="chRules" role="img" aria-label="Gráfico de barras empilhadas por regra"></canvas></div>
+          </div>
+          <div class="card p-5 xl:col-span-7">
+            <div class="chart-h"><h3>Situação por pasta</h3><span class="hint" id="chFoldersHint">pastas com mais documentos</span></div>
+            <div class="relative mt-2" id="chFoldersBox" style="height:280px"><canvas id="chFolders" role="img" aria-label="Gráfico de barras por pasta"></canvas></div>
+          </div>
+          <div class="card p-5 xl:col-span-5">
+            <div class="chart-h"><h3>Similaridade da frase CBS</h3><span class="hint">documentos por faixa</span></div>
+            <div class="relative mt-2 h-[280px]"><canvas id="chSimil" role="img" aria-label="Histograma de similaridade da frase"></canvas></div>
+          </div>
+        </div>
+
+        <div class="grid gap-6 xl:grid-cols-12">
+          <div class="card xl:col-span-5">
+            <div class="card-h"><h2 class="card-t"><span class="ic"><i class="fa-solid fa-lightbulb"></i></span>Leitura do resultado</h2><span class="live-tag" id="repLive" hidden><span class="live-dot"></span>ao vivo</span></div>
+            <ul class="grid gap-3 p-5" id="insights"></ul>
+          </div>
+          <div class="card min-w-0 xl:col-span-7">
+            <div class="card-h"><h2 class="card-t"><span class="ic"><i class="fa-solid fa-list-ol"></i></span>Pendências prioritárias</h2><span class="hint" id="pendMeta"></span></div>
+            <div class="overflow-x-auto"><table class="tbl" id="pendTable"></table></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ REGRAS ============ -->
+    <section data-view="regras" class="view" hidden>
+      <div class="page-head">
+        <div>
+          <p class="eyebrow"><i class="fa-solid fa-sliders"></i>Configuração</p>
+          <h1 class="page-title">Regras de validação</h1>
+          <p class="page-sub">As alterações são salvas neste navegador e reaplicadas na hora aos documentos já lidos.</p>
+        </div>
+        <button class="btn" id="btnReset" type="button"><i class="fa-solid fa-rotate-left"></i>Restaurar padrão</button>
+      </div>
+      <div class="grid items-start gap-6 xl:grid-cols-12">
+        <div class="card xl:col-span-7">
+          <div class="card-h"><h2 class="card-t"><span class="ic"><i class="fa-solid fa-quote-left"></i></span>Frase obrigatória</h2></div>
+          <div class="grid gap-5 p-5">
+            <div class="grid gap-2">
+              <div id="phrases" class="grid gap-2"></div>
+              <div><button class="btn btn-ghost !px-2 !py-1 text-[12.5px] text-brand-700 dark:text-brand-300" id="btnAddPhrase" type="button"><i class="fa-solid fa-plus"></i>Adicionar outra frase</button></div>
+              <p class="hint">A comparação ignora acentos, maiúsculas, pontuação e quebras de linha. Todas as frases da lista precisam aparecer.</p>
+            </div>
+            <label class="grid gap-2"><span class="lbl">Similaridade mínima para “frase com divergência”</span>
+              <div class="flex items-center gap-3"><input type="range" id="simil" min="60" max="99" step="1" class="flex-1 accent-brand-600"><output id="similOut" class="min-w-[4ch] rounded-md bg-ink-100 px-2 py-0.5 text-right font-mono text-[12.5px] font-semibold dark:bg-ink-800"></output></div>
+              <span class="hint">Abaixo desse valor a frase conta como <b>ausente</b> (não conforme). Entre esse valor e 99%, conta como <b>divergente</b> (revisar).</span>
+            </label>
+          </div>
+        </div>
+        <div class="grid gap-6 xl:col-span-5">
+          <div class="card">
+            <div class="card-h"><h2 class="card-t"><span class="ic"><i class="fa-solid fa-ban"></i></span>Termos e IOF</h2></div>
+            <div class="grid gap-5 p-5">
+              <label class="grid gap-2"><span class="lbl">Termos que não podem aparecer</span>
+                <input type="text" id="forbidden" class="field" placeholder="PIS, COFINS">
+                <span class="hint">Separe por vírgula. Busca a palavra inteira (PIS não casa com “pisos”).</span>
+              </label>
+              <label class="grid gap-2"><span class="lbl">Rótulos do IOF</span>
+                <input type="text" id="iofTerms" class="field" placeholder="IOF">
+                <span class="hint">Onde o rótulo aparecer, o valor ao lado ou logo abaixo (tabelas) precisa ser zero.</span>
+              </label>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><h2 class="card-t"><span class="ic"><i class="fa-solid fa-eye"></i></span>Leitura e pastas</h2></div>
+            <div class="grid gap-5 p-5">
+              <label class="grid gap-2"><span class="lbl">Leitura de imagens (OCR)</span>
+                <select id="ocrMode" class="field">
+                  <option value="auto">Automático — páginas sem texto ou com imagens</option>
+                  <option value="sempre">Sempre — texto + OCR em todas as páginas</option>
+                  <option value="nunca">Nunca — só o texto digital</option>
+                </select>
+                <span class="hint">Vale para os próximos arquivos. Use <i class="fa-solid fa-arrows-rotate"></i> Reprocessar para aplicar aos já lidos.</span>
+              </label>
+              <label class="flex items-start justify-between gap-4">
+                <span class="grid gap-1"><span class="lbl">Ao mapear pastas, analisar somente PDFs</span><span class="hint">Desligado, a pasta também traz Word, Excel, PowerPoint e imagens.</span></span>
+                <input type="checkbox" id="onlyPdf" class="toggle">
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ AJUDA ============ -->
+    <section data-view="ajuda" class="view" hidden>
+      <div class="page-head">
+        <div>
+          <p class="eyebrow"><i class="fa-solid fa-circle-question"></i>Suporte</p>
+          <h1 class="page-title">Como funciona</h1>
+          <p class="page-sub">O que é conferido em cada documento e como ler os resultados.</p>
+        </div>
+      </div>
+      <ol class="grid gap-4 md:grid-cols-3">
+        <li class="card p-5"><span class="step-n">1</span><strong class="mt-3 block text-ink-900 dark:text-white">Entrada</strong><p class="mt-1 text-[13px] text-ink-600 dark:text-ink-300">Selecione arquivos soltos ou mapeie uma pasta: todas as subpastas são varridas e cada PDF aparece com o caminho onde foi encontrado.</p></li>
+        <li class="card p-5"><span class="step-n">2</span><strong class="mt-3 block text-ink-900 dark:text-white">Conferência</strong><p class="mt-1 text-[13px] text-ink-600 dark:text-ink-300">IOF precisa estar zerado, PIS/COFINS não pode aparecer e a frase da CBS precisa constar. Páginas com imagem passam por OCR.</p></li>
+        <li class="card p-5"><span class="step-n">3</span><strong class="mt-3 block text-ink-900 dark:text-white">Evidência e relatório</strong><p class="mt-1 text-[13px] text-ink-600 dark:text-ink-300">Cada ponto vem com print do trecho. O relatório executivo consolida gráficos, leitura do resultado e pendências.</p></li>
+      </ol>
+      <div class="mt-6 grid gap-6 lg:grid-cols-2">
+        <div class="card p-5">
+          <h3 class="text-[15px] font-semibold text-ink-900 dark:text-white"><i class="fa-solid fa-percent mr-2 text-brand-600 dark:text-brand-300"></i>Como a similaridade é calculada</h3>
+          <div class="prose-sm mt-3 grid gap-2 text-[13px] text-ink-600 dark:text-ink-300">
+            <p>A frase configurada é comparada palavra a palavra com o trecho mais parecido do documento, na ordem em que aparece.</p>
+            <ul class="ml-5 list-disc space-y-1">
+              <li>Palavra igual conta <b>1 ponto</b>; palavra com erro de leitura (ex.: “alfquota”) conta parcialmente.</li>
+              <li>Números (alíquota, número da lei) precisam ser <b>idênticos</b> — “9,25” no lugar de “10,85” é divergência.</li>
+              <li>Palavra faltando não pontua; palavra a mais no meio da frase desconta meio ponto.</li>
+              <li>Percentual = pontos ÷ total de palavras da frase. 100% = frase exata.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card p-5">
+          <h3 class="text-[15px] font-semibold text-ink-900 dark:text-white"><i class="fa-solid fa-traffic-light mr-2 text-brand-600 dark:text-brand-300"></i>Como ler a situação</h3>
+          <ul class="mt-3 grid gap-3 text-[13px] text-ink-600 dark:text-ink-300">
+            <li class="flex gap-3"><span class="badge ok shrink-0">Conforme</span>Todas as regras atendidas.</li>
+            <li class="flex gap-3"><span class="badge warn shrink-0">Revisar</span>Frase com divergência, IOF citado sem valor legível ou páginas que não puderam ser lidas.</li>
+            <li class="flex gap-3"><span class="badge fail shrink-0">Não conforme</span>IOF com valor, termo proibido presente ou frase ausente.</li>
+          </ul>
+          <p class="mt-4 text-[12.5px] text-ink-500">Formatos: PDF (inclusive escaneado), DOCX, XLSX, PPTX, imagens, TXT, HTML, RTF e .doc (leitura aproximada).</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============ LIGHTBOX / TOAST ============ -->
+<div class="lightbox" id="lb" hidden role="dialog" aria-modal="true" aria-label="Print ampliado">
+  <div class="grid max-h-full w-full max-w-6xl gap-3 anim-zoom">
+    <img id="lbImg" alt="Print ampliado do trecho" class="mx-auto max-h-[calc(100vh-150px)] max-w-full rounded-xl bg-white shadow-lift">
+    <div class="flex flex-wrap justify-end gap-2">
+      <button class="btn" id="lbCopy" type="button"><i class="fa-regular fa-copy"></i>Copiar imagem</button>
+      <button class="btn" id="lbSave" type="button"><i class="fa-solid fa-download"></i>Baixar imagem</button>
+      <button class="btn btn-primary" id="lbClose" type="button"><i class="fa-solid fa-xmark"></i>Fechar</button>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast" hidden role="status"><i class="fa-solid fa-circle-check text-lime-300 dark:text-brand-600"></i><span id="toastMsg"></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script>
+/*{{JS}}*/
+</script>
+</body>
+</html>
